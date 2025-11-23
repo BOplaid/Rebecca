@@ -8,7 +8,6 @@ from dataclasses import dataclass
 from uuid import UUID
 
 from config import XRAY_HOSTS
-from app.xray import INBOUND_PORTS
 
 
 @dataclass
@@ -47,6 +46,7 @@ def vmess_link(remark: str,
                sni='',
                tls=False,
                type=''):
+    from app.xray import INBOUND_PORTS
     return "vmess://" + base64.b64encode(json.dumps({
         'add': address,
         'aid': '0',
@@ -72,6 +72,7 @@ def vless_link(remark: str,
                tls=False,
                host='',
                sni=''):
+    from app.xray import INBOUND_PORTS
     return "vless://" + \
         f"{id}@{address}:{INBOUND_PORTS['vless']}?" + \
         urlparse.urlencode({
@@ -92,6 +93,7 @@ def trojan_link(remark: str,
                 tls=False,
                 host='',
                 sni=''):
+    from app.xray import INBOUND_PORTS
     return "trojan://" + \
         f"{urlparse.quote(password, safe=':')}@{address}:{INBOUND_PORTS['trojan']}?" + \
         urlparse.urlencode({
@@ -107,6 +109,7 @@ def shadowsocks_link(remark: str,
                      address: str,
                      password: str,
                      security='chacha20-ietf-poly1305'):
+    from app.xray import INBOUND_PORTS
     return "ss://" + \
         base64.b64encode(f'{security}:{password}'.encode()).decode() + \
         f"@{address}:{INBOUND_PORTS['shadowsocks']}#{urlparse.quote(remark)}"
@@ -152,8 +155,6 @@ def get_share_link(remark: str, host: str, protocol: str, settings: dict):
 
 
 def get_share_links(protocol: str, settings: str):
-    from app.xray import INBOUND_STREAMS
-
     links = []
     for host in XRAY_HOSTS:
         links.append(get_share_link(host['remark'], host['hostname'], protocol, settings))

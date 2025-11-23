@@ -24,9 +24,9 @@ def test_check_port(mock_socket):
     mock_sock = MagicMock()
     mock_socket.socket.return_value = mock_sock
     mock_sock.connect.return_value = None  # Success
-    assert check_port(8080) == True
+    assert check_port(8080) is True
     mock_sock.connect.side_effect = OSError  # Fail
-    assert check_port(8080) == False
+    assert check_port(8080) is False
 
 
 @patch("app.utils.system.requests.get")

@@ -1,7 +1,6 @@
 import atexit
 import logging
 
-from app.utils import check_port
 from app.utils.xray_defaults import load_legacy_xray_config
 from app.xray.config import XRayConfig
 from app.xray.core import XRayCore
@@ -50,7 +49,9 @@ def _load_initial_xray_config(api_port: int) -> XRayConfig:
 
 
 # Search for a free API port from 8080
+api_port = 8080  # Default port
 try:
+    from app.utils import check_port
     for api_port in range(8080, 65536):
         if not check_port(api_port):
             break

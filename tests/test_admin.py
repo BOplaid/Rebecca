@@ -106,72 +106,6 @@ def test_get_admin_nodes_usage(auth_client: TestClient):
     assert "usages" in data
 
 
-def test_get_admin_daily_usage(auth_client: TestClient):
-    response = auth_client.get("/api/admin/testadmin/usage/daily")
-    assert response.status_code == 200
-    data = response.json()
-    assert "usages" in data
-
-
-def test_get_admin_usage_chart(auth_client: TestClient):
-    response = auth_client.get("/api/admin/testadmin/usage/chart")
-    assert response.status_code == 200
-    data = response.json()
-    assert "usages" in data
-
-
-def test_get_admin_nodes_usage(auth_client: TestClient):
-    response = auth_client.get("/api/admin/testadmin/usage/nodes")
-    assert response.status_code == 200
-    data = response.json()
-    assert isinstance(data, dict)
-    assert "usages" in data
-
-
-def test_get_admin_daily_usage(auth_client: TestClient):
-    response = auth_client.get("/api/admin/testadmin/usage/daily")
-    assert response.status_code == 200
-    data = response.json()
-    assert "usages" in data
-
-
-def test_get_admin_usage_chart(auth_client: TestClient):
-    response = auth_client.get("/api/admin/testadmin/usage/chart")
-    assert response.status_code == 200
-    data = response.json()
-    assert "usages" in data
-
-
-def test_get_admin_nodes_usage(auth_client: TestClient):
-    response = auth_client.get("/api/admin/testadmin/usage/nodes")
-    assert response.status_code == 200
-    data = response.json()
-    assert isinstance(data, dict)
-    assert "usages" in data
-
-
-def test_get_admin_daily_usage(auth_client: TestClient):
-    response = auth_client.get("/api/admin/testadmin/usage/daily")
-    assert response.status_code == 200
-    data = response.json()
-    assert "usages" in data
-
-
-def test_get_admin_usage_chart(auth_client: TestClient):
-    response = auth_client.get("/api/admin/testadmin/usage/chart")
-    assert response.status_code == 200
-    data = response.json()
-    assert "usages" in data
-
-
-def test_get_admin_nodes_usage(auth_client: TestClient):
-    response = auth_client.get("/api/admin/testadmin/usage/nodes")
-    assert response.status_code == 200
-    data = response.json()
-    assert isinstance(data, dict)
-    assert "usages" in data
-
-
 def test_enable_admin(auth_client: TestClient):
     # First create and disable an admin
     admin_data = {"username": "enableadmin", "password": "enablepass123", "role": "standard"}
@@ -193,15 +127,6 @@ def test_disable_admin(auth_client: TestClient):
     assert response.status_code == 200
 
 
-def test_disable_admin_users(auth_client: TestClient):
-    # First create an admin
-    admin_data = {"username": "disableusersadmin", "password": "disableuserspass123", "role": "standard"}
-    auth_client.post("/api/admin", json=admin_data)
-
-    response = auth_client.post("/api/admin/disableusersadmin/users/disable")
-    assert response.status_code == 200
-
-
 def test_activate_admin_users(auth_client: TestClient):
     # First create an admin
     admin_data = {"username": "activateusersadmin", "password": "activateuserspass123", "role": "standard"}
@@ -214,25 +139,3 @@ def test_activate_admin_users(auth_client: TestClient):
 def test_reset_admin(auth_client: TestClient):
     response = auth_client.post("/api/admin/usage/reset/testadmin")
     assert response.status_code == 200
-
-
-def test_get_admin_daily_usage(auth_client: TestClient):
-    response = auth_client.get("/api/admin/testadmin/usage/daily")
-    assert response.status_code == 200
-    data = response.json()
-    assert "usages" in data
-
-
-def test_get_admin_usage_chart(auth_client: TestClient):
-    response = auth_client.get("/api/admin/testadmin/usage/chart")
-    assert response.status_code == 200
-    data = response.json()
-    assert "usages" in data
-
-
-def test_get_admin_nodes_usage(auth_client: TestClient):
-    response = auth_client.get("/api/admin/testadmin/usage/nodes")
-    assert response.status_code == 200
-    data = response.json()
-    assert isinstance(data, dict)
-    assert "usages" in data

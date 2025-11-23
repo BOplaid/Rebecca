@@ -49,6 +49,8 @@ coverage.xml
 .hypothesis/
 .pytest_cache/
 cover/
+test-before-*
+pre-push-*
 
 # Translations
 *.mo

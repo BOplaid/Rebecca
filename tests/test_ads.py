@@ -23,16 +23,7 @@ def test_refresh_ads_failure(mock_get):
 
 
 def test_should_refresh_force():
-    assert _should_refresh(True) == True
-
-
-def test_should_refresh_no_last_refresh():
-    original = _ads_state.last_refresh
-    _ads_state.last_refresh = None
-    try:
-        assert _should_refresh(False) == True
-    finally:
-        _ads_state.last_refresh = original
+    assert _should_refresh(True) is True
 
 
 def test_should_refresh_no_last_refresh():
@@ -43,7 +34,7 @@ def test_should_refresh_no_last_refresh():
     _ads_state.last_attempt = None
     _ads_state.last_error = None
     try:
-        assert _should_refresh(False) == True
+        assert _should_refresh(False) is True
     finally:
         _ads_state.last_refresh = original_refresh
         _ads_state.last_attempt = original_attempt
@@ -60,7 +51,7 @@ def test_should_refresh_expired():
     _ads_state.last_error = None
     try:
         with patch("app.utils.ads._now", return_value=datetime(2023, 1, 2, tzinfo=timezone.utc)):
-            assert _should_refresh(False) == True
+            assert _should_refresh(False) is True
     finally:
         _ads_state.last_refresh = original_refresh
         _ads_state.last_attempt = original_attempt
