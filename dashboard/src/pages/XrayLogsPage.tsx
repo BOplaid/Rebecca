@@ -124,29 +124,29 @@ export const XrayLogsPage: FC<XrayLogsPageProps> = ({ showTitle = true }) => {
     const isDark = colorMode === "dark";
     return {
       error: {
-        bg: isDark ? "rgba(248, 113, 113, 0.16)" : "red.50",
-        color: isDark ? "#fed7d7" : "#c53030",
-        border: isDark ? "#f87171" : "#feb2b2",
+        bg: isDark ? "rgba(239, 68, 68, 0.2)" : "rgba(254, 226, 226, 0.8)",
+        color: isDark ? "#fca5a5" : "#dc2626",
+        border: isDark ? "#ef4444" : "#dc2626",
       },
       warn: {
-        bg: isDark ? "rgba(251, 191, 36, 0.18)" : "orange.50",
-        color: isDark ? "#fefcbf" : "#975a16",
-        border: isDark ? "#fbbf24" : "#f6ad55",
+        bg: isDark ? "rgba(234, 179, 8, 0.2)" : "rgba(254, 243, 199, 0.8)",
+        color: isDark ? "#fde047" : "#ca8a04",
+        border: isDark ? "#eab308" : "#facc15",
       },
       info: {
-        bg: isDark ? "rgba(96, 165, 250, 0.18)" : "blue.50",
-        color: isDark ? "#bfdbfe" : "#1a56db",
-        border: isDark ? "#60a5fa" : "#63b3ed",
+        bg: isDark ? "rgba(34, 197, 94, 0.2)" : "rgba(209, 250, 229, 0.8)",
+        color: isDark ? "#86efac" : "#16a34a",
+        border: isDark ? "#22c55e" : "#22c55e",
       },
       debug: {
-        bg: isDark ? "rgba(148, 163, 184, 0.16)" : "gray.100",
-        color: isDark ? "#e2e8f0" : "#1f2933",
-        border: isDark ? "#94a3b8" : "#cbd5e1",
+        bg: isDark ? "rgba(148, 163, 184, 0.16)" : "rgba(241, 245, 249, 0.8)",
+        color: isDark ? "#cbd5e1" : "#475569",
+        border: isDark ? "#94a3b8" : "#94a3b8",
       },
       default: {
-        bg: isDark ? "rgba(30, 64, 175, 0.1)" : "gray.50",
-        color: isDark ? "#e2e8f0" : "#1f2933",
-        border: isDark ? "#475569" : "#e2e8f0",
+        bg: isDark ? "rgba(51, 65, 85, 0.1)" : "rgba(248, 250, 252, 0.8)",
+        color: isDark ? "#e2e8f0" : "#64748b",
+        border: isDark ? "#475569" : "#cbd5e1",
       },
     };
   }, [colorMode]);
@@ -157,10 +157,23 @@ export const XrayLogsPage: FC<XrayLogsPageProps> = ({ showTitle = true }) => {
   const selectBg = useColorModeValue("white", "gray.700");
 
   const classifyLog = (message: string) => {
-    if (/error|failed|exception/i.test(message)) return "error" as const;
-    if (/warn/i.test(message)) return "warn" as const;
-    if (/info/i.test(message)) return "info" as const;
-    if (/debug/i.test(message)) return "debug" as const;
+    const lowerMessage = message.toLowerCase();
+    // Check for error patterns first (most critical)
+    if (/error|failed|exception|fatal|panic|critical/i.test(lowerMessage)) {
+      return "error" as const;
+    }
+    // Check for warning patterns
+    if (/warn|warning|deprecated/i.test(lowerMessage)) {
+      return "warn" as const;
+    }
+    // Check for info patterns
+    if (/info|information|success|connected|started|stopped/i.test(lowerMessage)) {
+      return "info" as const;
+    }
+    // Check for debug patterns
+    if (/debug|trace|verbose/i.test(lowerMessage)) {
+      return "debug" as const;
+    }
     return "default" as const;
   };
 
