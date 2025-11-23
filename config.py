@@ -1,3 +1,5 @@
+import json
+
 from decouple import config
 from dotenv import load_dotenv
 
@@ -119,3 +121,31 @@ JOB_RECORD_USER_USAGES_INTERVAL = config("JOB_RECORD_USER_USAGES_INTERVAL", cast
 JOB_REVIEW_USERS_INTERVAL = config("JOB_REVIEW_USERS_INTERVAL", cast=int, default=10)
 JOB_SEND_NOTIFICATIONS_INTERVAL = config("JOB_SEND_NOTIFICATIONS_INTERVAL", cast=int, default=30)
 JOB_REVIEW_USERS_BATCH_SIZE = config("JOB_REVIEW_USERS_BATCH_SIZE", cast=int, default=200)
+
+
+def _parse_xray_hosts():
+    raw = config("XRAY_HOSTS", default="").strip()
+    if raw:
+        try:
+            parsed = json.loads(raw)
+            if isinstance(parsed, list):
+                normalized = []
+                for item in parsed:
+                    if isinstance(item, dict) and "hostname" in item:
+                        remark = item.get("remark", item["hostname"])
+                        hostname = item["hostname"]
+                        normalized.append({"remark": remark, "hostname": hostname})
+                    elif isinstance(item, str):
+                        normalized.append({"remark": item, "hostname": item})
+                if normalized:
+                    return normalized
+        except json.JSONDecodeError:
+            pass
+
+    fallback_host = config("XRAY_HOST", default=config("XRAY_HOSTNAME", default="")).strip()
+    if fallback_host:
+        return [{"remark": fallback_host, "hostname": fallback_host}]
+    return []
+
+
+XRAY_HOSTS = _parse_xray_hosts()
