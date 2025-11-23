@@ -1,8 +1,8 @@
 <p align="center">
   <a href="https://github.com/rebeccapanel/Rebecca" target="_blank" rel="noopener noreferrer">
     <picture>
-      <source media="(prefers-color-scheme: dark)" srcset="https://github.com/xmohammad1/Rebecca-docs/raw/master/screenshots/logo-dark.png">
-      <img width="160" height="160" src="https://github.com/xmohammad1/Rebecca-docs/raw/master/screenshots/logo-light.png">
+      <source media="(prefers-color-scheme: dark)" srcset="https://github.com/rebeccapanel/Rebecca-docs/raw/master/screenshots/logo-dark.png">
+      <img width="160" height="160" src="https://github.com/rebeccapanel/Rebecca-docs/raw/master/screenshots/logo-light.png">
     </picture>
   </a>
 </p>
@@ -49,7 +49,7 @@
 
 <p align="center">
   <a href="https://github.com/rebeccapanel/Rebecca" target="_blank" rel="noopener noreferrer" >
-    <img src="https://github.com/xmohammad1/Rebecca-docs/raw/master/screenshots/preview.png" alt="Rebecca screenshots" width="600" height="auto">
+    <img src="https://github.com/rebeccapanel/Rebecca-docs/raw/master/screenshots/preview.png" alt="Rebecca screenshots" width="600" height="auto">
   </a>
 </p>
 
