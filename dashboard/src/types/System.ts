@@ -67,4 +67,5 @@ export interface SystemStats {
   panel_memory_history: HistoryEntry[];
   personal_usage: PersonalUsageStats;
   admin_overview: AdminOverviewStats;
+  last_xray_error?: string | null;
 }

@@ -120,6 +120,7 @@ def get_system_stats(
     xray_running = False
     xray_uptime_seconds = 0
     xray_version = None
+    last_xray_error = None
     if xray and getattr(xray, "core", None):
         xray_running = bool(xray.core.started)
         xray_version = xray.core.version
@@ -131,6 +132,13 @@ def get_system_stats(
                     xray_uptime_seconds = max(0, int(now - xray_process.create_time()))
             except (psutil.NoSuchProcess, AttributeError):
                 xray_uptime_seconds = 0
+        
+        # Get last error if Xray is not running (stopped/crashed)
+        if not xray_running:
+            try:
+                last_xray_error = xray.core.get_last_error()
+            except (AttributeError, Exception):
+                last_xray_error = None
 
     timestamp = int(now)
     _system_history["cpu"].append({"timestamp": timestamp, "value": float(cpu.percent)})
@@ -235,6 +243,7 @@ def get_system_stats(
         panel_memory_history=list(_panel_history["memory"]),
         personal_usage=personal_usage,
         admin_overview=admin_overview,
+        last_xray_error=last_xray_error,
     )
 
 

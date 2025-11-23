@@ -4,6 +4,7 @@ import subprocess
 import threading
 from collections import deque
 from contextlib import contextmanager
+from typing import Optional
 
 import logging
 
@@ -105,6 +106,32 @@ class XRayCore:
         finally:
             del self._temp_log_buffers[buf_id]
             del buf
+
+    def get_last_error(self) -> Optional[str]:
+        """Get the last error log from Xray that caused it to stop."""
+        if not self._logs_buffer:
+            return None
+        
+        # Search backwards through logs for error patterns
+        error_patterns = [
+            r'error',
+            r'failed',
+            r'exception',
+            r'fatal',
+            r'panic',
+            r'critical',
+            r'core.*stopped',
+            r'core.*exit',
+        ]
+        
+        # Check logs in reverse order (most recent first)
+        for log in reversed(list(self._logs_buffer)):
+            log_lower = log.lower()
+            for pattern in error_patterns:
+                if re.search(pattern, log_lower, re.IGNORECASE):
+                    return log
+        
+        return None
 
     @property
     def started(self):

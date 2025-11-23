@@ -454,6 +454,36 @@ const SystemOverviewCard: FC<{
             {t("xrayUptime")}: {formatDuration(data.xray_uptime_seconds)}
           </Tag>
         </Stack>
+        {data.last_xray_error && !data.xray_running && (
+          <Box
+            mt={4}
+            p={4}
+            borderRadius="md"
+            bg="red.50"
+            borderWidth="1px"
+            borderColor="red.200"
+            _dark={{
+              bg: "rgba(239, 68, 68, 0.1)",
+              borderColor: "red.800",
+            }}
+          >
+            <HStack spacing={2} mb={2} alignItems="center">
+              <Text fontSize="sm" fontWeight="semibold" color="red.600" _dark={{ color: "red.400" }}>
+                {t("coreError", "Core Error")}:
+              </Text>
+            </HStack>
+            <Text
+              fontSize="sm"
+              color="red.700"
+              fontFamily="mono"
+              whiteSpace="pre-wrap"
+              wordBreak="break-word"
+              _dark={{ color: "red.300" }}
+            >
+              {data.last_xray_error}
+            </Text>
+          </Box>
+        )}
       </Stack>
     </Card>
   );

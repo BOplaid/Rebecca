@@ -72,3 +72,4 @@ class SystemStats(BaseModel):
     panel_memory_history: List[HistoryEntry] = Field(default_factory=list)
     personal_usage: PersonalUsageStats
     admin_overview: AdminOverviewStats
+    last_xray_error: Optional[str] = None
