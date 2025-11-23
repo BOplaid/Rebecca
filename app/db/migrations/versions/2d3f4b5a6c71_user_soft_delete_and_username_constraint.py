@@ -158,6 +158,14 @@ def downgrade() -> None:
         "unique"
     ):
         op.drop_index("ix_users_username", table_name="users")
+        # Refresh inspector after drop
+        inspector = sa.inspect(bind)
+        existing_indexes = {idx["name"]: idx for idx in inspector.get_indexes("users")}
 
-    # Recreate a unique index to enforce uniqueness again
-    op.create_index("ix_users_username", "users", ["username"], unique=True)
+    # Recreate a unique index to enforce uniqueness again (only if it doesn't exist or isn't unique)
+    if "ix_users_username" not in existing_indexes:
+        op.create_index("ix_users_username", "users", ["username"], unique=True)
+    elif not existing_indexes.get("ix_users_username", {}).get("unique", False):
+        # Index exists but is not unique, drop and recreate
+        op.drop_index("ix_users_username", table_name="users")
+        op.create_index("ix_users_username", "users", ["username"], unique=True)
