@@ -201,7 +201,6 @@ class ReSTXRayNode:
                     port=self.api_port,
                     ssl_cert=self._grpc_root_cert,
                     ssl_target_name=self._tls_target_name,
-                    use_tls=True,
                 )
             else:
                 raise ConnectionError("Node is not started")
@@ -253,7 +252,6 @@ class ReSTXRayNode:
             port=self.api_port,
             ssl_cert=self._grpc_root_cert,
             ssl_target_name=self._tls_target_name,
-            use_tls=True,
         )
 
         try:
@@ -287,7 +285,6 @@ class ReSTXRayNode:
             port=self.api_port,
             ssl_cert=self._grpc_root_cert,
             ssl_target_name=self._tls_target_name,
-            use_tls=True,
         )
 
         try:
