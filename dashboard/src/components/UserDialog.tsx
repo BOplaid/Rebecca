@@ -802,14 +802,10 @@ export const UserDialog: FC<UserDialogProps> = () => {
 
 
   useEffect(() => {
-
-    if (!isEditing && isOpen && hasServices) {
-
+    if (!isEditing && isOpen && hasServices && !hasElevatedRole) {
       setSelectedServiceId((current) => current ?? services[0]?.id ?? null);
-
     }
-
-  }, [services, isEditing, isOpen, hasServices]);
+  }, [services, isEditing, isOpen, hasServices, hasElevatedRole]);
 
 
 
@@ -1067,10 +1063,11 @@ export const UserDialog: FC<UserDialogProps> = () => {
 
 
     if (!isEditing) {
-      const effectiveServiceId =
-        selectedServiceId ?? (nonSudoSingleService ? services[0]?.id ?? null : null);
+      const effectiveServiceId = hasElevatedRole
+        ? selectedServiceId
+        : selectedServiceId ?? (nonSudoSingleService ? services[0]?.id ?? null : null);
 
-      if (!effectiveServiceId) {
+      if (!hasElevatedRole && !effectiveServiceId) {
         setError(t("userDialog.selectService", "Please choose a service"));
         setLoading(false);
         return;
@@ -1080,7 +1077,7 @@ export const UserDialog: FC<UserDialogProps> = () => {
 
         username: values.username,
 
-        service_id: effectiveServiceId,
+        service_id: effectiveServiceId ?? 0,
 
         note: values.note,
 
@@ -2150,7 +2147,7 @@ export const UserDialog: FC<UserDialogProps> = () => {
                 {showServiceSelector && (
                 <GridItem mt={useTwoColumns ? 0 : 4}>
 
-                  <FormControl isRequired={!isEditing}>
+                  <FormControl isRequired={!hasElevatedRole}>
 
                     <FormLabel>{t("userDialog.selectServiceLabel", "Service")}</FormLabel>
 
@@ -2172,7 +2169,7 @@ export const UserDialog: FC<UserDialogProps> = () => {
 
                       <VStack align="stretch" spacing={3}>
 
-                        {isEditing && hasElevatedRole && (
+                        {hasElevatedRole && (
 
                           <Box
 

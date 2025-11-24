@@ -98,7 +98,19 @@ def hosts(storage: dict):
             ]
 
             # Cache hosts per service (and for unassigned hosts) to avoid repeated DB lookups.
+            all_service_ids = set()
             for host in storage[inbound_tag]:
-                target_services = host["service_ids"] or [None]
+                if host["service_ids"]:
+                    all_service_ids.update(host["service_ids"])
+                else:
+                    all_service_ids.add(None)
+            
+            for service_id in all_service_ids:
+                service_hosts_cache.setdefault(service_id, {}).setdefault(inbound_tag, [])
+            
+            service_hosts_cache.setdefault(None, {}).setdefault(inbound_tag, [])
+            
+            for host in storage[inbound_tag]:
+                target_services = host["service_ids"] if host["service_ids"] else [None]
                 for service_id in target_services:
-                    service_hosts_cache.setdefault(service_id, {}).setdefault(inbound_tag, []).append(host)
+                    service_hosts_cache[service_id][inbound_tag].append(host)

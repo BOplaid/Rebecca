@@ -258,26 +258,41 @@ def process_inbounds_and_tags(
     service_id = extra_data.get("service_id")
 
     def _select_host_map(service_id_value):
-        host_map = None
-
-        if hasattr(xray, "service_hosts_cache"):
-            host_map = xray.service_hosts_cache.get(service_id_value)
-            if host_map is None and service_id_value is not None:
-                host_map = xray.service_hosts_cache.get(None)
+        """
+        Get host map for a specific service_id from cache.
+        If service_id is None (no service), returns hosts not assigned to any service.
+        Always ensures cache is populated before returning.
+        """
+        if not hasattr(xray, "service_hosts_cache"):
+            xray.service_hosts_cache = {}
+        
+        if not xray.service_hosts_cache:
+            xray.hosts.update()
+        
+        host_map = xray.service_hosts_cache.get(service_id_value)
+        
+        if service_id_value is None:
+            xray.hosts.update()
+            
+            all_hosts = xray.hosts
+            host_map = {}
+            for tag in xray.config.inbounds_by_tag.keys():
+                host_map[tag] = all_hosts.get(tag, [])
+            
+            xray.service_hosts_cache[None] = host_map
+        else:
             if not host_map:
                 xray.hosts.update()
-                host_map = (
-                    xray.service_hosts_cache.get(service_id_value)
-                    or xray.service_hosts_cache.get(None)
-                    or {}
-                )
-        else:
-            xray.hosts.update()
-            host_map = {
-                tag: xray.hosts.get(tag, [])
-                for tag in xray.config.inbounds_by_tag.keys()
-            }
-
+                host_map = xray.service_hosts_cache.get(service_id_value)
+        
+        if not host_map:
+            host_map = {}
+        
+        all_tags = set(xray.config.inbounds_by_tag.keys())
+        for tag in all_tags:
+            if tag not in host_map:
+                host_map[tag] = []
+        
         return host_map
 
     host_map = _select_host_map(service_id)
@@ -302,7 +317,10 @@ def process_inbounds_and_tags(
             if not inbound:
                 continue
 
+            # Get host list for this tag from host_map
             host_list = host_map.get(tag, []) if host_map else []
+            
+            
             sorted_host_list = sorted(
                 host_list,
                 key=lambda h: (h.get("sort", 0), h.get("id") or 0)

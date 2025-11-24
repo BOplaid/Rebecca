@@ -1,6 +1,7 @@
 import hashlib
 import secrets
 import uuid
+import re
 from functools import lru_cache
 from typing import TYPE_CHECKING, Any, Dict, MutableMapping, Optional, Union
 from uuid import UUID
@@ -83,6 +84,7 @@ def serialize_proxy_settings(
     proxy_type: ProxyTypes,
     credential_key: Optional[str],
     preserve_existing_uuid: bool = False,
+    allow_auto_generate: bool = True,
 ) -> dict:
     """
     Serialize proxy settings for storage in the database.
@@ -93,6 +95,8 @@ def serialize_proxy_settings(
         credential_key: User's credential key (if exists)
         preserve_existing_uuid: If True, preserve existing UUID in proxies table when credential_key exists.
                                 This is used for existing users with UUIDs. For new users, set to False.
+        allow_auto_generate: If False, don't auto-generate UUID/password when credential_key is None.
+                             This is used in update_user to prevent auto-generating credentials.
     
     Returns:
         Serialized proxy settings dictionary
@@ -107,12 +111,13 @@ def serialize_proxy_settings(
         if proxy_type in PASSWORD_PROTOCOLS:
             data.pop("password", None)
     else:
-        if proxy_type in UUID_PROTOCOLS and not data.get("id"):
-            data["id"] = str(uuid.uuid4())
-        if proxy_type in PASSWORD_PROTOCOLS and not data.get("password"):
-            data["password"] = random_password()
-        if proxy_type == ProxyTypes.Shadowsocks and not data.get("method"):
-            data["method"] = ShadowsocksMethods.CHACHA20_POLY1305.value
+        if allow_auto_generate:
+            if proxy_type in UUID_PROTOCOLS and not data.get("id"):
+                data["id"] = str(uuid.uuid4())
+            if proxy_type in PASSWORD_PROTOCOLS and not data.get("password"):
+                data["password"] = random_password()
+            if proxy_type == ProxyTypes.Shadowsocks and not data.get("method"):
+                data["method"] = ShadowsocksMethods.CHACHA20_POLY1305.value
 
     return data
 
@@ -186,21 +191,7 @@ def runtime_proxy_settings(
             if sanitized_id:
                 data["id"] = sanitized_id
             else:
-                # Try to derive a credential key from stored UUIDs in proxies table
-                derived_key = None
-                raw_id = data.get("id")
-                if raw_id:
-                    try:
-                        derived_key = uuid_to_key(UUID(str(raw_id)), proxy_type)
-                    except Exception:
-                        derived_key = None
-                if derived_key:
-                    try:
-                        data["id"] = str(key_to_uuid(derived_key, proxy_type))
-                    except Exception:
-                        data["id"] = str(uuid.uuid4())
-                else:
-                    data["id"] = str(uuid.uuid4())
+                raise ValueError(f"UUID is required for proxy type {proxy_type}")
         if proxy_type == ProxyTypes.Trojan:
             data.setdefault("password", random_password())
         if proxy_type == ProxyTypes.Shadowsocks:

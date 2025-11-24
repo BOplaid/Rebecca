@@ -7,6 +7,23 @@ from app.reb_node import XRayConfig, state
 from app.runtime import xray
 
 
+def restart_xray_and_invalidate_cache(startup_config=None):
+    """
+    Restart Xray core and invalidate hosts cache.
+    This should be called whenever Xray is restarted to ensure cache is fresh.
+    """
+    if startup_config is None:
+        startup_config = xray.config.include_db_users()
+    
+    xray.core.restart(startup_config)
+    
+    xray.hosts.update()
+    
+    for node_id, node in list(xray.nodes.items()):
+        if node.connected:
+            xray.operations.restart_node(node_id, startup_config)
+
+
 def apply_config_and_restart(payload: Dict[str, Any]) -> None:
     """
     Persist a new Xray configuration, restart the master core and refresh nodes.
@@ -28,10 +45,4 @@ def apply_config_and_restart(payload: Dict[str, Any]) -> None:
         crud.save_xray_config(db, payload)
 
     startup_config = xray.config.include_db_users()
-    xray.core.restart(startup_config)
-
-    for node_id, node in list(xray.nodes.items()):
-        if node.connected:
-            xray.operations.restart_node(node_id, startup_config)
-
-    xray.hosts.update()
+    restart_xray_and_invalidate_cache(startup_config)

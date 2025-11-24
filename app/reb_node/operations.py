@@ -171,7 +171,6 @@ def _alter_inbound_user(api: XRayAPI, inbound_tag: str, accounts: List[Account])
 
 def add_user(dbuser: "DBUser"):
     user = UserResponse.model_validate(dbuser)
-    email = f"{dbuser.id}.{dbuser.username}"
 
     for proxy_type, inbound_tags in user.inbounds.items():
         for inbound_tag in inbound_tags:

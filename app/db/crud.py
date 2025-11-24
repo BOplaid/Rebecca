@@ -2008,17 +2008,7 @@ def update_user(
     added_proxies: Dict[ProxyTypes, Proxy] = {}
 
     if modify.proxies:
-        try:
-            new_key = _extract_key_from_proxies(modify.proxies)
-        except ValueError as exc:
-            _logger.warning("Unable to derive credential key from proxy UUIDs: %s", exc)
-            new_key = None
-        if new_key:
-            normalized_key = normalize_key(new_key)
-            if credential_key != normalized_key:
-                credential_key = normalized_key
-                dbuser.credential_key = credential_key
-                _apply_key_to_existing_proxies(dbuser, credential_key)
+        pass
 
         modify_proxy_types = {ProxyTypes(key) for key in modify.proxies}
 
@@ -2028,13 +2018,21 @@ def update_user(
                 .where(Proxy.user == dbuser, Proxy.type == proxy_type) \
                 .first()
             if dbproxy:
-                # Preserve existing UUID if it exists in the database
                 existing_uuid = dbproxy.settings.get("id") if isinstance(dbproxy.settings, dict) else None
+                existing_password = dbproxy.settings.get("password") if isinstance(dbproxy.settings, dict) else None
                 preserve_uuid = bool(existing_uuid and proxy_type in UUID_PROTOCOLS)
-                dbproxy.settings = serialize_proxy_settings(settings, proxy_type, credential_key, preserve_existing_uuid=preserve_uuid)
+                
+                if not credential_key:
+                    if proxy_type in UUID_PROTOCOLS and existing_uuid and not getattr(settings, "id", None):
+                        settings.id = existing_uuid
+                    if proxy_type in PASSWORD_PROTOCOLS and existing_password and not getattr(settings, "password", None):
+                        settings.password = existing_password
+                
+                allow_auto_generate = bool(credential_key)
+                dbproxy.settings = serialize_proxy_settings(settings, proxy_type, credential_key, preserve_existing_uuid=preserve_uuid, allow_auto_generate=allow_auto_generate)
             else:
-                # New proxy for existing user - don't preserve UUID (will be generated at runtime from key)
-                serialized = serialize_proxy_settings(settings, proxy_type, credential_key)
+                allow_auto_generate = bool(credential_key)
+                serialized = serialize_proxy_settings(settings, proxy_type, credential_key, allow_auto_generate=allow_auto_generate)
                 new_proxy = Proxy(type=proxy_type.value, settings=serialized)
                 dbuser.proxies.append(new_proxy)
                 added_proxies.update({proxy_type: new_proxy})
